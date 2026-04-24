@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiFGANet: Lightweight Frequency- and Gradient-Aware Network | ICPR 2026</title>
+    <meta name="description"
+        content="LiFGANet is a lightweight image classification network using frequency-gradient inductive biases. 1.13M parameters. State-of-the-art on PneumoniaMNIST, BloodMNIST, FashionMNIST, and EuroSAT. ICPR 2026.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Background Grid -->
+    <div class="bg-grid"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">LiFGANet</span>
+            </div>
+            <div class="nav-links">
+                <a href="#abstract">Abstract</a>
+                <a href="#method">Method</a>
+                <a href="#results">Results</a>
+                <a href="#ablation">Ablation</a>
+                <a href="#authors">Authors</a>
+            </div>
+            <a href="#" class="btn btn-outline-primary nav-cta">Paper PDF</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero" id="hero">
+        <div class="container animate-up">
+            <div class="conference-badge">ICPR 2026</div>
+            <h1 class="hero-title">LiFGANet</h1>
+            <p class="hero-subtitle">Lightweight Frequency- and Gradient-Aware Network for Robust Image Classification
+            </p>
+
+            <div class="authors">
+                <span class="author">Jotiraditya Banerjee<sup class="affil">1,*</sup></span>
+                <span class="author">Utathya Aich<sup class="affil">2,3,*,†</sup></span>
+                <span class="author">Ujjwal Bhattacharya<sup class="affil">3</sup></span>
+            </div>
+
+            <div class="affiliations">
+                <p><sup>1</sup> Department of Power Engineering, Jadavpur University</p>
+                <p><sup>2</sup> CNH Industrial, India</p>
+                <p><sup>3</sup> CVPR Unit, Indian Statistical Institute, Kolkata, India</p>
+            </div>
+
+            <div class="footnotes">
+                <p>* Equal contribution | † Corresponding author: us4decaich@gmail.com</p>
+            </div>
+
+            <div class="hero-ctas">
+                <a href="#" class="btn btn-primary">📄 Paper</a>
+                <a href="#" class="btn btn-secondary">💻 Code (GitHub)</a>
+                <a href="#results" class="btn btn-ghost">📊 Results</a>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3 class="metric-value counter" data-target="1.13">0</h3><span>M</span>
+                    <p class="metric-label">Parameters</p>
+                </div>
+                <div class="metric-card">
+                    <h3 class="metric-value counter" data-target="0.073">0</h3>
+                    <p class="metric-label">GFLOPs</p>
+                </div>
+                <div class="metric-card">
+                    <h3 class="metric-value counter" data-target="98.66">0</h3><span>%</span>
+                    <p class="metric-label">PneumoniaMNIST Acc.</p>
+                </div>
+                <div class="metric-card">
+                    <h3 class="metric-value counter" data-target="99.06">0</h3><span>%</span>
+                    <p class="metric-label">BloodMNIST Acc.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Abstract Section -->
+    <section class="section" id="abstract">
+        <div class="container animate-up">
+            <h2 class="section-title">Abstract</h2>
+            <div class="text-block text-lg">
+                <p>Lightweight neural networks are increasingly used for image classification in scenarios where memory,
+                    computation, and energy resources are limited. However, reducing model size often results in a
+                    noticeable loss of robustness and generalization, as compact architectures struggle to learn
+                    fine-grained structural cues such as edges, textures, and high-frequency patterns. This limitation
+                    is especially evident in domains like medical imaging, microscopy, and remote sensing, where subtle
+                    spatial variations play an important role in discrimination.</p>
+
+                <p>In this work, we introduce <strong>LiFGANet</strong>, a lightweight frequency and gradient-aware
+                    network designed to mitigate this problem by incorporating explicit inductive biases into feature
+                    learning. Instead of increasing model capacity, LiFGANet emphasizes structurally informative
+                    representations through an efficient frequency-gradient interaction mechanism, combined with sparse
+                    feature refinement and multi-stage feature aggregation.</p>
+
+                <p>The proposed design remains compact, with approximately 1.3M parameters, and introduces negligible
+                    inference overhead. We evaluate LiFGANet on PneumoniaMNIST, BloodMNIST, FashionMNIST, and EuroSAT.
+                    The results show consistent and well-balanced performance across datasets, often matching or
+                    surpassing existing lightweight models with similar or larger parameter budgets.</p>
+            </div>
+
+            <div class="keywords">
+                <span class="tag">Lightweight Image Classification</span>
+                <span class="tag">Frequency-Aware Learning</span>
+                <span class="tag">Gradient-Guided Features</span>
+                <span class="tag">Inductive Bias</span>
+                <span class="tag">Resource-Constrained Vision</span>
+                <span class="tag">Medical Imaging</span>
+                <span class="tag">Remote Sensing</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section class="section surface-bg" id="overview">
+        <div class="container animate-up">
+            <h2 class="section-title">Architecture Overview</h2>
+            <p class="section-desc">LiFGANet consists of four tightly coupled components that inject explicit inductive
+                biases without increasing parameter count or inference cost.</p>
+
+            <div class="figure-container">
+                <object data="architechture 1.pdf" type="application/pdf" width="100%" height="500px"
+                    style="border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden;">
+                    <p>Your browser doesn't support PDFs. <a href="architechture 1.pdf">Download it here</a>.</p>
+                </object>
+            </div>
+
+            <div class="components-grid">
+                <div class="feature-card">
+                    <div class="feature-number">01</div>
+                    <h3 class="feature-title">Multi-Stage Feature Extraction</h3>
+                    <p>Built on a MobileNetV3-Small backbone pretrained on ImageNet. Features are extracted from stages
+                        2, 3, and 4 (24, 48, and 96 channels respectively), preserving complementary structural cues
+                        across semantic scales.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">02</div>
+                    <h3 class="feature-title">Physics Frequency Attention (PFA)</h3>
+                    <p>Combines activation-based frequency saliency with spatial gradient information (horizontal +
+                        vertical finite differences) to generate a frequency–gradient attention map. Selectively
+                        amplifies activations that are both spectrally salient and spatially coherent.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">03</div>
+                    <h3 class="feature-title">Sparse Physics Block (SPB)</h3>
+                    <p>Refines modulated features through sparse convolutional operations (1×1 and 3×3 convolutions)
+                        with scaled residual projections (γ = 0.2). Preserves salient information while maintaining
+                        parameter efficiency and training stability.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">04</div>
+                    <h3 class="feature-title">Multi-Stage Aggregation & Training</h3>
+                    <p>Features from all stages are aggregated via Global Average Pooling and concatenation. Training
+                        uses a regularized objective combining cross-entropy with label smoothing (ε=0.1) and a
+                        smoothness constraint (λ=0.01), plus lightweight Haar DWT-based frequency augmentation (p=0.1,
+                        train only).</p>
+                </div>
+            </div>
+
+            <div class="figure-container mt-lg">
+                <object data="architechture 2.pdf" type="application/pdf" width="100%" height="500px"
+                    style="border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden;">
+                    <p>Your browser doesn't support PDFs. <a href="architechture 2.pdf">Download it here</a>.</p>
+                </object>
+            </div>
+        </div>
+    </section>
+
+    <!-- Method Details -->
+    <section class="section" id="method">
+        <div class="container animate-up">
+            <h2 class="section-title">Key Technical Components</h2>
+
+            <div class="equations-list">
+                <div class="equation-item">
+                    <h3>Frequency Proxy via Activation Magnitude</h3>
+                    <p>A lightweight frequency proxy is computed from activation magnitudes, identifying spatially rich
+                        convolutional responses.</p>
+                    <div class="equation-box math-font">A<sub>k</sub>(c,i,j) = |F<sub>k</sub>(c,i,j)|</div>
+                    <p class="note">Where (i,j) indexes spatial locations and c denotes the channel index.</p>
+                </div>
+
+                <div class="equation-item">
+                    <h3>Softmax-Normalized Frequency Weighting</h3>
+                    <p>Frequency components are selectively emphasized using a softmax normalization with a learnable
+                        sharpness scalar α.</p>
+                    <div class="equation-box math-font">W<sub>k</sub>(c,i,j) = exp(α·A<sub>k</sub>(c,i,j)) /
+                        Σ<sub>u,v</sub> exp(α·A<sub>k</sub>(c,u,v))</div>
+                    <p class="note">α is a learnable scalar controlling the sharpness of frequency selection.</p>
+                </div>
+
+                <div class="equation-item">
+                    <h3>Gradient Computation</h3>
+                    <p>Spatial gradients are computed via finite differences to distinguish structurally meaningful
+                        frequency components from spurious activations.</p>
+                    <div class="equation-box math-font">G<sub>k</sub> = (1/2)(|∇<sub>x</sub> F<sub>k</sub>| +
+                        |∇<sub>y</sub> F<sub>k</sub>|)</div>
+                    <p class="note">∇_x and ∇_y denote first-order differences along spatial dimensions, averaged across
+                        channels.</p>
+                </div>
+
+                <div class="equation-item">
+                    <h3>Frequency–Gradient Modulation</h3>
+                    <p>Feature maps are modulated by combining frequency weights and gradient signals — amplifying
+                        activations that are both spectrally salient and spatially coherent.</p>
+                    <div class="equation-box math-font">F̃<sub>k</sub> = F<sub>k</sub> ⊙ (1 + λ·W<sub>k</sub> ⊙
+                        G<sub>k</sub>)</div>
+                    <p class="note">λ is a fixed scaling factor. This interaction stabilizes frequency selection and
+                        guides low-capacity models toward structurally informative representations.</p>
+                </div>
+
+                <div class="equation-item">
+                    <h3>Sparse Feature Refinement</h3>
+                    <p>A conservative update mechanism that acts as a regularizing adjustment rather than a dominant
+                        transformation.</p>
+                    <div class="equation-box math-font">R<sub>k</sub> =
+                        φ(BN(Conv<sub>3×3</sub>(Conv<sub>1×1</sub>(F̃<sub>k</sub>))) +
+                        γ·φ(Conv<sub>1×1</sub>(F̃<sub>k</sub>)))</div>
+                    <p class="note">φ(·) is GELU activation, BN is batch normalization, γ is a small scaling factor
+                        (0.2).</p>
+                </div>
+
+                <div class="equation-item">
+                    <h3>Multi-Stage Aggregation</h3>
+                    <p>Refined feature maps from all stages are combined via global average pooling and concatenation.
+                    </p>
+                    <div class="equation-box math-font">z = Concat(GAP(R<sub>1</sub>), ..., GAP(R<sub>K</sub>))</div>
+                    <p class="note">This preserves complementary texture- and structure-level information across
+                        semantic scales without any feature pyramid network overhead.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Datasets Section -->
+    <section class="section surface-bg" id="datasets">
+        <div class="container animate-up">
+            <h2 class="section-title">Evaluation Benchmarks</h2>
+            <p class="section-desc">LiFGANet is evaluated across four diverse benchmarks spanning medical imaging,
+                biological microscopy, fashion recognition, and remote sensing.</p>
+
+            <div class="dataset-cards">
+                <div class="dataset-card">
+                    <div class="dataset-icon">🫁</div>
+                    <h3>PneumoniaMNIST</h3>
+                    <span class="domain-tag">Medical Imaging</span>
+                    <ul class="dataset-stats">
+                        <li><strong>Classes:</strong> 2</li>
+                        <li><strong>Train:</strong> 4,708</li>
+                        <li><strong>Val:</strong> 524</li>
+                        <li><strong>Test:</strong> 624</li>
+                    </ul>
+                    <p>Binary pediatric chest X-ray dataset characterized by subtle texture variations and low-contrast
+                        regions.</p>
+                </div>
+
+                <div class="dataset-card">
+                    <div class="dataset-icon">🔬</div>
+                    <h3>BloodMNIST</h3>
+                    <span class="domain-tag">Biological Microscopy</span>
+                    <ul class="dataset-stats">
+                        <li><strong>Classes:</strong> 8</li>
+                        <li><strong>Train:</strong> 11,959</li>
+                        <li><strong>Val:</strong> 1,712</li>
+                        <li><strong>Test:</strong> 3,421</li>
+                    </ul>
+                    <p>Microscopic blood cell images across eight classes with strong inter-class similarity and
+                        fine-grained morphological differences.</p>
+                </div>
+
+                <div class="dataset-card">
+                    <div class="dataset-icon">👗</div>
+                    <h3>FashionMNIST</h3>
+                    <span class="domain-tag">Fashion Recognition</span>
+                    <ul class="dataset-stats">
+                        <li><strong>Classes:</strong> 10</li>
+                        <li><strong>Train:</strong> 60,000</li>
+                        <li><strong>Val:</strong> -</li>
+                        <li><strong>Test:</strong> 10,000</li>
+                    </ul>
+                    <p>Grayscale clothing images from ten categories where classes often differ primarily in local
+                        contours and textures.</p>
+                </div>
+
+                <div class="dataset-card">
+                    <div class="dataset-icon">🛰️</div>
+                    <h3>EuroSAT</h3>
+                    <span class="domain-tag">Remote Sensing</span>
+                    <ul class="dataset-stats">
+                        <li><strong>Classes:</strong> 10</li>
+                        <li><strong>Train:</strong> 21,600</li>
+                        <li><strong>Val:</strong> 5,400</li>
+                        <li><strong>Test:</strong> 5,400</li>
+                    </ul>
+                    <p>Satellite images spanning ten land-use classes, featuring complex spatial layouts and multi-scale
+                        texture patterns.</p>
+                </div>
+            </div>
+
+            <div class="figure-container mt-lg">
+                <object data="Dataset samples.pdf" type="application/pdf" width="100%" height="400px"
+                    style="border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden;">
+                    <p>Your browser doesn't support PDFs. <a href="Dataset samples.pdf">Download it here</a>.</p>
+                </object>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="section" id="results">
+        <div class="container animate-up">
+            <h2 class="section-title">Experimental Results</h2>
+
+            <div class="table-container mb-xl">
+                <div class="table-header">
+                    <h3>LiFGANet Performance <span class="table-subtitle">(Average of 5 Runs, Mean ± Std)</span></h3>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dataset</th>
+                                <th>Accuracy</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>F1-score</th>
+                                <th>AUC</th>
+                            </tr>
+                        </thead>
+                        <tbody class="stagger-rows">
+                            <tr class="highlighted">
+                                <td>PneumoniaMNIST</td>
+                                <td>0.9866 ± 0.04</td>
+                                <td>0.9866 ± 0.05</td>
+                                <td>0.9866 ± 0.04</td>
+                                <td>0.9866 ± 0.04</td>
+                                <td>0.9989 ± 0.02</td>
+                            </tr>
+                            <tr class="highlighted">
+                                <td>BloodMNIST</td>
+                                <td>0.9906 ± 0.03</td>
+                                <td>0.9906 ± 0.04</td>
+                                <td>0.9907 ± 0.03</td>
+                                <td>0.9906 ± 0.04</td>
+                                <td>0.9992 ± 0.01</td>
+                            </tr>
+                            <tr>
+                                <td>FashionMNIST</td>
+                                <td>0.9526 ± 0.06</td>
+                                <td>0.9526 ± 0.07</td>
+                                <td>0.9526 ± 0.06</td>
+                                <td>0.9526 ± 0.06</td>
+                                <td>0.9664 ± 0.05</td>
+                            </tr>
+                            <tr>
+                                <td>EuroSAT</td>
+                                <td>0.9811 ± 0.05</td>
+                                <td>0.9811 ± 0.06</td>
+                                <td>0.9811 ± 0.05</td>
+                                <td>0.9811 ± 0.05</td>
+                                <td>0.9921 ± 0.03</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="caption mt-sm">All improvements are statistically significant, confirmed using paired t-tests
+                    (p < 0.05).</p>
+            </div>
+
+            <!-- Comparison Grids -->
+            <div class="comparison-grid">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Comparison on PneumoniaMNIST</h3>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Year</th>
+                                    <th>Params (M)</th>
+                                    <th>Accuracy</th>
+                                </tr>
+                            </thead>
+                            <tbody class="stagger-rows">
+                                <tr>
+                                    <td>MedViT-T</td>
+                                    <td>2023</td>
+                                    <td>10.8</td>
+                                    <td>0.949</td>
+                                </tr>
+                                <tr>
+                                    <td>MedNAS</td>
+                                    <td>2024</td>
+                                    <td>4.47</td>
+                                    <td>0.912</td>
+                                </tr>
+                                <tr>
+                                    <td>IncARMAG</td>
+                                    <td>2025</td>
+                                    <td>5.3</td>
+                                    <td>0.885</td>
+                                </tr>
+                                <tr>
+                                    <td>MedKAFormer</td>
+                                    <td>2025</td>
+                                    <td>12.47</td>
+                                    <td>0.9093</td>
+                                </tr>
+                                <tr>
+                                    <td>MedViT V2</td>
+                                    <td>2025</td>
+                                    <td>12.3</td>
+                                    <td>0.951</td>
+                                </tr>
+                                <tr class="highlighted">
+                                    <td>LiFGANet (Ours)</td>
+                                    <td>2026</td>
+                                    <td>1.13</td>
+                                    <td>0.9866</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Comparison on BloodMNIST</h3>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Year</th>
+                                    <th>Params (M)</th>
+                                    <th>Accuracy</th>
+                                </tr>
+                            </thead>
+                            <tbody class="stagger-rows">
+                                <tr>
+                                    <td>MedViT-T</td>
+                                    <td>2023</td>
+                                    <td>10.8</td>
+                                    <td>0.950</td>
+                                </tr>
+                                <tr>
+                                    <td>MedNAS</td>
+                                    <td>2024</td>
+                                    <td>4.47</td>
+                                    <td>0.970</td>
+                                </tr>
+                                <tr>
+                                    <td>Med-Former</td>
+                                    <td>2024</td>
+                                    <td>-</td>
+                                    <td>0.997</td>
+                                </tr>
+                                <tr>
+                                    <td>ViT</td>
+                                    <td>2024</td>
+                                    <td>-</td>
+                                    <td>0.979</td>
+                                </tr>
+                                <tr>
+                                    <td>IncARMAG</td>
+                                    <td>2025</td>
+                                    <td>5.3</td>
+                                    <td>0.987</td>
+                                </tr>
+                                <tr class="highlighted">
+                                    <td>LiFGANet (Ours)</td>
+                                    <td>2026</td>
+                                    <td>1.13</td>
+                                    <td>0.9906</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-container mt-lg">
+                    <div class="table-header">
+                        <h3>Comparison on FashionMNIST</h3>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Year</th>
+                                    <th>Params (M)</th>
+                                    <th>Accuracy</th>
+                                </tr>
+                            </thead>
+                            <tbody class="stagger-rows">
+                                <tr>
+                                    <td>MobileNet</td>
+                                    <td>2017</td>
+                                    <td>2.23</td>
+                                    <td>0.9396</td>
+                                </tr>
+                                <tr>
+                                    <td>ResNet18</td>
+                                    <td>2016</td>
+                                    <td>11.18</td>
+                                    <td>0.9320</td>
+                                </tr>
+                                <tr>
+                                    <td>EfficientNet</td>
+                                    <td>2019</td>
+                                    <td>4.02</td>
+                                    <td>0.9364</td>
+                                </tr>
+                                <tr>
+                                    <td>MCNN15</td>
+                                    <td>2022</td>
+                                    <td>2.59</td>
+                                    <td>0.9404</td>
+                                </tr>
+                                <tr class="highlighted">
+                                    <td>LiFGANet (Ours)</td>
+                                    <td>2026</td>
+                                    <td>1.13</td>
+                                    <td>0.9526</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-container mt-lg">
+                    <div class="table-header">
+                        <h3>Comparison on EuroSAT</h3>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Year</th>
+                                    <th>Params (M)</th>
+                                    <th>Accuracy</th>
+                                </tr>
+                            </thead>
+                            <tbody class="stagger-rows">
+                                <tr>
+                                    <td>GeosystemNet</td>
+                                    <td>2020</td>
+                                    <td>1.32</td>
+                                    <td>0.9465</td>
+                                </tr>
+                                <tr>
+                                    <td>Deep SHAP</td>
+                                    <td>2023</td>
+                                    <td>1.87</td>
+                                    <td>0.9472</td>
+                                </tr>
+                                <tr>
+                                    <td>IBNR-65+DenseNet</td>
+                                    <td>2024</td>
+                                    <td>7.9</td>
+                                    <td>0.9680</td>
+                                </tr>
+                                <tr>
+                                    <td>ConvNeXt + LNN</td>
+                                    <td>2025</td>
+                                    <td>7.8</td>
+                                    <td>0.9726</td>
+                                </tr>
+                                <tr class="highlighted">
+                                    <td>LiFGANet (Ours)</td>
+                                    <td>2026</td>
+                                    <td>1.13</td>
+                                    <td>0.9811</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Efficiency Section -->
+    <section class="section surface-bg" id="efficiency">
+        <div class="container animate-up">
+            <h2 class="section-title">Efficiency & Edge Deployment</h2>
+            <p class="section-desc">LiFGANet is evaluated on multiple hardware platforms. All inference time values are
+                in ms/image.</p>
+
+            <div class="table-container mt-lg">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Params (M)</th>
+                                <th>GFLOPs</th>
+                                <th>Accuracy</th>
+                                <th>Jetson Nano (ms)</th>
+                                <th>Raspberry Pi (ms)</th>
+                                <th>Kaggle P100 (ms)</th>
+                                <th>Kaggle T4 (ms)</th>
+                                <th>CPU (ms)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="stagger-rows">
+                            <tr>
+                                <td>ResNet18</td>
+                                <td>14.63</td>
+                                <td>1.82</td>
+                                <td>0.9744</td>
+                                <td>7.19</td>
+                                <td>111.46</td>
+                                <td>4.29</td>
+                                <td>4.54</td>
+                                <td>74.31</td>
+                            </tr>
+                            <tr>
+                                <td>DenseNet121</td>
+                                <td>20.74</td>
+                                <td>2.88</td>
+                                <td>0.9770</td>
+                                <td>17.20</td>
+                                <td>266.64</td>
+                                <td>22.34</td>
+                                <td>21.66</td>
+                                <td>177.76</td>
+                            </tr>
+                            <tr>
+                                <td>ShuffleNetV2</td>
+                                <td>4.13</td>
+                                <td>0.15</td>
+                                <td>0.9792</td>
+                                <td>3.70</td>
+                                <td>57.45</td>
+                                <td>8.58</td>
+                                <td>9.47</td>
+                                <td>38.30</td>
+                            </tr>
+                            <tr>
+                                <td>EfficientNetB0</td>
+                                <td>4.60</td>
+                                <td>0.39</td>
+                                <td>0.9856</td>
+                                <td>9.92</td>
+                                <td>153.76</td>
+                                <td>13.31</td>
+                                <td>14.75</td>
+                                <td>102.51</td>
+                            </tr>
+                            <tr class="highlighted">
+                                <td>LiFGANet (Ours)</td>
+                                <td>1.13</td>
+                                <td>0.073</td>
+                                <td>0.9811</td>
+                                <td>2.53</td>
+                                <td>39.34</td>
+                                <td>8.48</td>
+                                <td>9.26</td>
+                                <td>26.23</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="callout callout-accent mt-md">
+                    <p><strong>Note:</strong> LiFGANet achieves the fastest CPU and Jetson Nano inference while using
+                        the fewest parameters and lowest GFLOPs among all compared models.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ablation Section -->
+    <section class="section" id="ablation">
+        <div class="container animate-up">
+            <h2 class="section-title">Ablation Study</h2>
+            <p class="section-desc">Comprehensive ablation on PneumoniaMNIST examining the contribution of each
+                component.</p>
+
+            <div class="table-container mt-lg">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Variant / Component</th>
+                                <th>Accuracy</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>F1-score</th>
+                            </tr>
+                        </thead>
+                        <tbody class="stagger-rows">
+                            <tr class="group-header">
+                                <td colspan="5">A: Frequency & Gradient Components</td>
+                            </tr>
+                            <tr>
+                                <td>Frequency only</td>
+                                <td>0.9778</td>
+                                <td>0.9778</td>
+                                <td>0.9778</td>
+                                <td>0.9778</td>
+                            </tr>
+                            <tr>
+                                <td>Gradient only</td>
+                                <td>0.9781</td>
+                                <td>0.9783</td>
+                                <td>0.9781</td>
+                                <td>0.9782</td>
+                            </tr>
+
+                            <tr class="group-header">
+                                <td colspan="5">B: Component Ablation</td>
+                            </tr>
+                            <tr>
+                                <td>w/o Frequency Augmentation</td>
+                                <td>0.9744</td>
+                                <td>0.9746</td>
+                                <td>0.9744</td>
+                                <td>0.9744</td>
+                            </tr>
+                            <tr>
+                                <td>w/o Gradient Modulation</td>
+                                <td>0.9774</td>
+                                <td>0.9776</td>
+                                <td>0.9774</td>
+                                <td>0.9774</td>
+                            </tr>
+                            <tr>
+                                <td>w/o Sparse Refinement</td>
+                                <td>0.9744</td>
+                                <td>0.9747</td>
+                                <td>0.9744</td>
+                                <td>0.9745</td>
+                            </tr>
+                            <tr>
+                                <td>w/o Multi-stage Aggregation</td>
+                                <td>0.9759</td>
+                                <td>0.9760</td>
+                                <td>0.9759</td>
+                                <td>0.9759</td>
+                            </tr>
+
+                            <tr class="group-header">
+                                <td colspan="5">C: Loss Function Ablation</td>
+                            </tr>
+                            <tr>
+                                <td>Cross-Entropy only</td>
+                                <td>0.9756</td>
+                                <td>0.9757</td>
+                                <td>0.9756</td>
+                                <td>0.9755</td>
+                            </tr>
+                            <tr>
+                                <td>Label Smoothing only</td>
+                                <td>0.9767</td>
+                                <td>0.9768</td>
+                                <td>0.9767</td>
+                                <td>0.9767</td>
+                            </tr>
+                            <tr>
+                                <td>Focal Loss</td>
+                                <td>0.9744</td>
+                                <td>0.9745</td>
+                                <td>0.9744</td>
+                                <td>0.9744</td>
+                            </tr>
+
+                            <tr class="group-header">
+                                <td colspan="5">Full Model</td>
+                            </tr>
+                            <tr class="highlighted">
+                                <td>Frequency + Gradient (Full LiFGANet)</td>
+                                <td>0.9866</td>
+                                <td>0.9866</td>
+                                <td>0.9866</td>
+                                <td>0.9866</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="callout callout-accent mt-md">
+                    <p><strong>Key Finding:</strong> Individually, frequency-aware and gradient-guided modeling yield
+                        modest gains. Their joint integration produces a pronounced accuracy jump — revealing strong
+                        non-trivial complementarity between spectral saliency and spatial structure.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Robustness & Generalization -->
+    <section class="section surface-bg" id="robustness">
+        <div class="container animate-up">
+            <h2 class="section-title">Robustness Under Corruption</h2>
+            <p class="section-desc">Test-set robustness under additive Gaussian noise (σ=0.05) and Gaussian blur (kernel
+                size 5×5). Δ↓ is the average accuracy drop.</p>
+
+            <div class="table-container mt-lg mb-xl">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dataset</th>
+                                <th>ShuffleNet Clean</th>
+                                <th>ShuffleNet Noise</th>
+                                <th>ShuffleNet Blur</th>
+                                <th>ShuffleNet Δ↓</th>
+                                <th>LiFGANet Clean</th>
+                                <th>LiFGANet Noise</th>
+                                <th>LiFGANet Blur</th>
+                                <th>LiFGANet Δ↓</th>
+                            </tr>
+                        </thead>
+                        <tbody class="stagger-rows">
+                            <tr>
+                                <td>PneumoniaMNIST</td>
+                                <td>0.9792</td>
+                                <td>0.9145</td>
+                                <td>0.9230</td>
+                                <td>0.0647</td>
+                                <td>0.9866</td>
+                                <td>0.9521</td>
+                                <td>0.9504</td>
+                                <td class="text-accent">0.0345</td>
+                            </tr>
+                            <tr>
+                                <td>BloodMNIST</td>
+                                <td>0.9231</td>
+                                <td>0.9088</td>
+                                <td>0.9154</td>
+                                <td>0.0143</td>
+                                <td>0.9895</td>
+                                <td>0.9502</td>
+                                <td>0.9476</td>
+                                <td class="text-accent">0.0404</td>
+                            </tr>
+                            <tr>
+                                <td>FashionMNIST</td>
+                                <td>0.9431</td>
+                                <td>0.8842</td>
+                                <td>0.8910</td>
+                                <td>0.0589</td>
+                                <td>0.9526</td>
+                                <td>0.9234</td>
+                                <td>0.9210</td>
+                                <td class="text-accent">0.0292</td>
+                            </tr>
+                            <tr>
+                                <td>EuroSAT</td>
+                                <td>0.9784</td>
+                                <td>0.9110</td>
+                                <td>0.9205</td>
+                                <td>0.0674</td>
+                                <td>0.9811</td>
+                                <td>0.9508</td>
+                                <td>0.9490</td>
+                                <td class="text-accent">0.0303</td>
+                            </tr>
+                            <tr class="summary-row">
+                                <td>Average Drop</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>0.0513</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td class="text-accent strong">0.0336</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h2 class="section-title mt-xl">Generalization to CIFAR-100</h2>
+            <p class="section-desc">To assess generalization beyond domain-specific benchmarks, LiFGANet is evaluated on
+                CIFAR-100. Under the same lightweight constraints, LiFGANet achieves 79.1% accuracy using only 1.13M
+                parameters.</p>
+
+            <div class="table-container mt-lg" style="max-width: 600px; margin-left: auto; margin-right: auto;">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Params (M)</th>
+                                <th>CIFAR-100 Accuracy</th>
+                            </tr>
+                        </thead>
+                        <tbody class="stagger-rows">
+                            <tr>
+                                <td>ResNet-18</td>
+                                <td>14.63</td>
+                                <td>~79–80%</td>
+                            </tr>
+                            <tr>
+                                <td>DenseNet-121</td>
+                                <td>20.74</td>
+                                <td>~77–80%</td>
+                            </tr>
+                            <tr>
+                                <td>ShuffleNetV2</td>
+                                <td>4.13</td>
+                                <td>~72–78%</td>
+                            </tr>
+                            <tr>
+                                <td>EfficientNet-B0</td>
+                                <td>4.60</td>
+                                <td>~85–88%</td>
+                            </tr>
+                            <tr class="highlighted">
+                                <td>LiFGANet (Ours)</td>
+                                <td>1.13</td>
+                                <td>79.1%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visualizations -->
+    <section class="section" id="visualizations">
+        <div class="container animate-up">
+            <h2 class="section-title">Feature Activation Visualizations</h2>
+            <p class="section-desc">Visualization of feature activations and attention mechanisms in LiFGANet across
+                different datasets. The frequency and gradient attention maps demonstrate the network's ability to focus
+                on structurally meaningful features rather than global appearance.</p>
+
+            <div class="figure-container mt-lg">
+                <img src="attn.png" alt="Feature Activation Visualizations"
+                    style="width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color);" />
+                <p class="caption">Figure 3: Visualization of feature activations across FashionMNIST (row a),
+                    PneumoniaMNIST (row b), and EuroSAT (row c).</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Implementation Details -->
+    <section class="section surface-bg" id="implementation">
+        <div class="container animate-up">
+            <h2 class="section-title">Implementation Details</h2>
+
+            <div class="grid grid-cols-2">
+                <div class="impl-list">
+                    <ul class="detail-list">
+                        <li><span class="detail-label">Framework</span> <span class="detail-value">PyTorch</span></li>
+                        <li><span class="detail-label">Backbone</span> <span class="detail-value">MobileNetV3-Small
+                                (ImageNet pretrained)</span></li>
+                        <li><span class="detail-label">Input Size</span> <span class="detail-value">224 × 224,
+                                normalized with ImageNet statistics</span></li>
+                        <li><span class="detail-label">Optimizer</span> <span class="detail-value">AdamW, lr =
+                                1×10⁻³</span></li>
+                        <li><span class="detail-label">Training Epochs</span> <span class="detail-value">50</span></li>
+                        <li><span class="detail-label">Batch Size</span> <span class="detail-value">64</span></li>
+                        <li><span class="detail-label">LR Scheduler</span> <span class="detail-value">Cosine
+                                Annealing</span></li>
+                        <li><span class="detail-label">Label Smoothing (ε)</span> <span class="detail-value">0.1</span>
+                        </li>
+                        <li><span class="detail-label">Smoothness Weight (β)</span> <span
+                                class="detail-value">0.01</span></li>
+                        <li><span class="detail-label">Frequency Aug. Prob.</span> <span class="detail-value">p = 0.1
+                                (train only)</span></li>
+                        <li><span class="detail-label">Frequency Aug. Type</span> <span class="detail-value">Haar DWT +
+                                IDWT</span></li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">Core Frequency–Gradient Modulation</div>
+                    <pre><code class="language-python"># Frequency proxy
+A_k = torch.abs(F_k)
+
+# Softmax-normalized frequency weights
+W_k = F.softmax(alpha * A_k.view(B, C, -1), dim=-1).view_as(A_k)
+
+# Spatial gradient (finite differences)
+G_k = 0.5 * (torch.abs(F_k[:,:,:,1:] - F_k[:,:,:,:-1]).mean(dim=1, keepdim=True)
+           + torch.abs(F_k[:,:,1:,:] - F_k[:,:,:-1,:]).mean(dim=1, keepdim=True))
+G_k = F.interpolate(G_k, size=F_k.shape[-2:])  # align spatial dims
+
+# Frequency-gradient modulated features
+F_tilde_k = F_k * (1 + lam * W_k * G_k)</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Authors -->
+    <section class="section" id="authors">
+        <div class="container animate-up">
+            <h2 class="section-title">Authors</h2>
+
+            <div class="authors-grid">
+                <div class="author-card">
+                    <div class="author-avatar">JB</div>
+                    <h3 class="author-name">Jotiraditya Banerjee</h3>
+                    <p class="author-role">Equal Contribution</p>
+                    <p class="author-affiliation">Department of Power Engineering, Jadavpur University</p>
+                    <a href="mailto:joti.ban.2710@gmail.com" class="author-email">joti.ban.2710@gmail.com</a>
+                </div>
+
+                <div class="author-card">
+                    <div class="author-avatar">UA</div>
+                    <h3 class="author-name">Utathya Aich</h3>
+                    <p class="author-role">Equal Contribution · Corresponding Author</p>
+                    <p class="author-affiliation">CNH Industrial, India & CVPR Unit, ISI Kolkata</p>
+                    <a href="mailto:us4decaich@gmail.com" class="author-email">us4decaich@gmail.com</a>
+                </div>
+
+                <div class="author-card">
+                    <div class="author-avatar">UB</div>
+                    <h3 class="author-name">Ujjwal Bhattacharya</h3>
+                    <p class="author-role">Senior Author</p>
+                    <p class="author-affiliation">CVPR Unit, Indian Statistical Institute, Kolkata, India</p>
+                    <a href="mailto:ujjwal@isical.ac.in" class="author-email">ujjwal@isical.ac.in</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Citation -->
+    <section class="section surface-bg" id="citation">
+        <div class="container animate-up">
+            <h2 class="section-title">Citation</h2>
+
+            <div class="bibtex-block">
+                <pre><code>@inproceedings{banerjee2026lifganet,
+  title     = {{LiFGANet}: Lightweight Frequency- and Gradient-Aware Network for Robust Image Classification},
+  author    = {Banerjee, Jotiraditya and Aich, Utathya and Bhattacharya, Ujjwal},
+  booktitle = {Proceedings of the International Conference on Pattern Recognition (ICPR)},
+  year      = {2026}
+}</code></pre>
+            </div>
+            <p class="caption mt-sm text-center">Code and implementation details will be released on GitHub after
+                acceptance.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>LiFGANet &middot; ICPR 2026 &middot; CVPR Unit, Indian Statistical Institute, Kolkata</p>
+                <div class="footer-links">
+                    <a href="#">Paper PDF</a>
+                    <a href="#">GitHub</a>
+                    <a href="mailto:us4decaich@gmail.com">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
